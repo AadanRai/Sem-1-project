@@ -11,13 +11,14 @@ def load_data():
 
     # Process grades
     grades_df["grades"] = grades_df["grades"].apply(lambda g: list(map(int, g.split(","))))
-                                                                            
+
     grades_df[["sub1", "sub2", "sub3", "sub4", "sub5"]] = pd.DataFrame(grades_df["grades"].tolist(), index=grades_df.index)
     grades_df["average"] = grades_df[["sub1", "sub2", "sub3", "sub4", "sub5"]].mean(axis=1)
 
     # Process ECA
-    eca_df["activity_count"] = eca_df["activities"].apply(lambda x: len(x.split (",")) if x.strip() else 0)
-                                                                        
+    eca_df["activities"] = eca_df["activities"].astype(str)  # Convert to string
+    eca_df["activity_count"] = eca_df["activities"].apply(lambda x: len(x.split(",")) if x.strip() else 0)
+
     return grades_df, eca_df
 
 
