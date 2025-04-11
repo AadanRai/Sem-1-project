@@ -1,5 +1,9 @@
 from tkinter import *
 from PIL import Image, ImageTk
+from tkinter import messagebox
+from user import Admin, Student
+from AdminDashboard import AdminDashboard  
+from StudentDashboard import StudentDashboard  
 
 class login_system:
     def __init__(self, root):
@@ -36,19 +40,11 @@ class login_system:
         self.txt_password.place(x=50, y=205, width=250)
 
         #==login button lbl===
-        btn_login = Button(login_frame, text="Log in", font=("arial rounded mt bold", 15), bg="black", activebackground="white", fg="white")
+        btn_login = Button(login_frame, text="Log in", font=("arial rounded mt bold", 15), bg="black", activebackground="white", fg="white", command=self.login)
         btn_login.place(x=75, y=300, width=200, height=35)
 
         hr = Label(login_frame, bg="lightgray")
         hr.place(x=50, y=250, width=250, height=2)
-
-        #==or lbl==
-        or_ = Label(login_frame, text="OR", bg="white", font=("times new roman", 12, "bold"))
-        or_.place(x=155, y=240)
-
-        #==forgot pass lbl===
-        btn_forgot_ = Button(login_frame, text="forget password?", font=("times new roman", 10, "bold"), bg="white", fg="black", bd=0)
-        btn_forgot_.place(x=125, y=270)
 
         # === Animation images ===
         self.im1 = ImageTk.PhotoImage(Image.open("ok3.webp").resize((369, 220)))
@@ -62,11 +58,63 @@ class login_system:
         self.animate()
 
     def animate(self):
-        # Toggle image
         self.image = self.im2 if self.image == self.im1 else self.im1
         self.lbl_change_Image.configure(image=self.image)
-        self.lbl_change_Image.image = self.image  # Keep reference
+        self.lbl_change_Image.image = self.image
         self.root.after(2000, self.animate)
+
+    def load_users(self):
+        users = {}
+        try:
+            with open("users.txt", "r") as f:
+                for line in f:
+                    username, fullname, role = line.strip().split(",")
+                    users[username] = {"fullname": fullname, "role": role}
+        except FileNotFoundError:
+            messagebox.showerror("Error", "users.txt not found!", parent=self.root)
+        return users
+
+    def load_passwords(self):
+        passwords = {}
+        try:
+            with open("passwords.txt", "r") as f:
+                for line in f:
+                    username, password = line.strip().split(",")
+                    passwords[username] = password
+        except FileNotFoundError:
+            messagebox.showerror("Error", "passwords.txt not found!", parent=self.root)
+        return passwords
+
+    def login(self):
+        username = self.txt_username.get().strip()
+        password = self.txt_password.get().strip()
+
+        if not username or not password:
+            messagebox.showerror("Error", "All fields are required!", parent=self.root)
+            return
+
+        users = self.load_users()
+        passwords = self.load_passwords()
+
+        if username in passwords and passwords[username] == password:
+            fullname = users[username]["fullname"]
+            role = users[username]["role"]
+            messagebox.showinfo("Success", f"✅ Welcome {fullname}!", parent=self.root)
+            self.redirect_user(username, fullname, role)
+        else:
+            messagebox.showerror("Error", "Invalid username or password!", parent=self.root)
+
+    def redirect_user(self, username, fullname, role):
+        self.root.destroy()
+        if role == "admin":
+        # Open Admin Dashboard menu, not directly analytics
+            admin_dashboard = AdminDashboard(username, fullname)
+            
+        elif role == "student":
+        # Open Student Dashboard menu, not directly analytics
+            student_dashboard = StudentDashboard(username, fullname)
+            
+
 
 # Run app
 root = Tk()

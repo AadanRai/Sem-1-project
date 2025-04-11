@@ -36,7 +36,7 @@ class Admin(User):
             elif choice == "4":
                 self.view_student()
             elif choice == "5":
-                run_analytics_dashboard()
+                run_analytics_dashboard()  # Calls the analytics dashboard
             elif choice == "0":
                 print("Logging out...")
                 break
@@ -59,23 +59,15 @@ class Admin(User):
         with open("users.txt", "a") as f:
             f.write(f"{username},{fullname},{role}\n")
 
-    # Add grades entry for the student (initialize with zeros)
+        # Add grades entry for the student (initialize with zeros)
         with open("grades.txt", "a") as f:
             f.write(f"{username}:0,0,0,0,0\n")
 
-    # Add ECA entry for the student (initialize empty)
+        # Add ECA entry for the student (initialize empty)
         with open("eca.txt", "a") as f:
             f.write(f"{username}:\n")
 
         print(f"✅ New student {fullname} added with username '{username}'!")
-
-#         add_student() method prompts for:
-
-# username, fullname, and age (ID is auto-generated).
-
-# Appends new student data into users.txt.
-
-# Initializes an entry in grades.txt (with all zeros for grades) and eca.txt (empty list of activities).
 
     def view_student(self):
         import os
@@ -83,10 +75,6 @@ class Admin(User):
         username = input("Enter student username: ")
 
         # Find student from users.txt
-        with open("users.txt", "r") as f:
-            students = f.readlines()
-
-         # 1. Load user info
         found = False
         try:
             with open("users.txt", "r") as f:
@@ -108,7 +96,7 @@ class Admin(User):
             print("❌ users.txt not found.")
             return
                 
- # 2. Load grades
+        # 2. Load grades
         try:
             with open("grades.txt", "r") as f:
                 for line in f:
@@ -122,7 +110,7 @@ class Admin(User):
         except FileNotFoundError:
             print("⚠️ grades.txt not found.")
     
-    # 3. Load ECA
+        # 3. Load ECA
         try:
             with open("eca.txt", "r") as f:
                 for line in f:
@@ -138,26 +126,12 @@ class Admin(User):
                         break
         except FileNotFoundError:
             print("⚠️ eca.txt not found.")
-            #             view_student() method allows the admin to input a student ID.
-
-# It searches users.txt for the student based on the ID.
-
-# If found, it:
-
-# Displays the student’s basic details (name, role).
-
-# Pulls grades from grades.txt and shows them.
-
-# Displays ECA activities from eca.txt.
-
-# If no student is found, it shows an error message.
-
 
     def update_student(self):
         print("\n== Update Student ==")
         username = input("Enter student username to update: ")
 
-    # Check if student exists
+        # Check if student exists
         exists = False
         with open("users.txt", "r") as f:
             users = f.readlines()
@@ -172,7 +146,7 @@ class Admin(User):
             print("❌ Student not found.")
             return
 
-    # Show update options
+        # Show update options
         print("\nWhat would you like to update?")
         print("1. Full Name")
         print("2. Grades")
@@ -226,11 +200,12 @@ class Admin(User):
             print("Cancelled.")
         else:
             print("❌ Invalid choice.")
+
     def delete_student(self):
         print("\n== Delete Student ==")
         username = input("Enter student username to delete: ")
 
-    # Step 1: Confirm student exists
+        # Step 1: Confirm student exists
         found = False
         with open("users.txt", "r") as f:
             users = f.readlines()
@@ -248,13 +223,13 @@ class Admin(User):
             print("❎ Deletion cancelled.")
             return
 
-    # Step 2: Remove from users.txt
+        # Step 2: Remove from users.txt
         with open("users.txt", "w") as f:
             for line in users:
                 if not line.startswith(username + ","):
                     f.write(line)
 
-    # Step 3: Remove from grades.txt
+        # Step 3: Remove from grades.txt
         with open("grades.txt", "r") as f:
             grades = f.readlines()
         with open("grades.txt", "w") as f:
@@ -262,7 +237,7 @@ class Admin(User):
                 if not line.startswith(username + ":"):
                     f.write(line)
 
-    # Step 4: Remove from eca.txt
+        # Step 4: Remove from eca.txt
         with open("eca.txt", "r") as f:
             eca = f.readlines()
         with open("eca.txt", "w") as f:
@@ -271,55 +246,6 @@ class Admin(User):
                     f.write(line)
 
         print(f"✅ Student '{username}' has been deleted from the system.")
-
-    def generate_reports(self):
-        print("\n== 📊 Reports Dashboard ==")
-
-    # 1. Average Grades per Subject
-        try:
-            with open("grades.txt", "r") as f:
-                subject_totals = [0] * 5
-                student_count = 0
-                for line in f:
-                    _, grade_data = line.strip().split(":")
-                    grades = list(map(int, grade_data.split(",")))
-                    for i in range(5):
-                        subject_totals[i] += grades[i]
-                    student_count += 1
-
-                if student_count == 0:
-                    print("No student grades to analyze.")
-                else:
-                    print("\n📘 Average Grades Per Subject:")
-                    for i in range(5):
-                        avg = subject_totals[i] / student_count
-                        print(f"  Subject {i+1}: {avg:.2f}")
-
-        except FileNotFoundError:
-            print("❌ grades.txt not found.")
-
-    # 2. Most Active Students in ECA
-        try:
-            activity_counts = {}
-            with open("eca.txt", "r") as f:
-                for line in f:
-                    username, activities = line.strip().split(":")
-                    activity_list = activities.split(",") if activities.strip() else []
-                    activity_counts[username] = len(activity_list)
-
-            if not activity_counts:
-                print("No ECA data available.")
-            else:
-                max_eca = max(activity_counts.values())
-                most_active = [u for u, count in activity_counts.items() if count == max_eca]
-
-                print("\n🎯 Most Active Student(s) in ECA:")
-                for student in most_active:
-                    print(f"  {student} ({activity_counts[student]} activities)")
-
-        except FileNotFoundError:
-            print("❌ eca.txt not found.")
-
 
 class Student(User):
     def __init__(self, username, fullname):
